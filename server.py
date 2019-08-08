@@ -1,18 +1,11 @@
 import socket
+import deep_q_agent
+import tensorflow as tf
 import numpy as np
 from PIL import ImageGrab
 
-def getAction(input_list):
-    buttons = ["A", "B", "X", "Y", "Up", "Down", "Left", "Right"]
-    action = ""
-    for i in range(len(buttons)):
-        if buttons[i] in input_list:
-            action += "1"
-        else:
-            action += "0"
-
-    return action
-
+session = tf.Session()
+agent = deep_q_agent.Agent(session)
 HOST = 'localhost'
 PORT = 8080
 
@@ -23,9 +16,15 @@ conn, addr = s.accept()
 print('Connected by', addr)
 while True:
     data = conn.recv(1024)
-    if data == b'0':
-        action = getAction(["B", "A", "Left"]) + "\n"
+    if data == b'1':
+        image = agent.get_image()
+        conn.sendall("0\n".encode('ascii'))
+        is_reversed = float(conn.recv(1024))
+        conn.sendall("0\n".encode('ascii'))
+        speed = float(conn.recv(1024))
+        conn.sendall("0\n".encode('ascii'))
+        power = float(conn.recv(1024))
+
+        action = agent.observe(image, speed, power, is_reversed) + "\n"
         conn.sendall(action.encode('ascii'))
-    elif data == b'1':
-        image = np.array(ImageGrab.grabclipboard())
-        print(image)
+        # print("Action sent", action)
