@@ -87,7 +87,7 @@ class Agent:
     def __init__(self, session):
         # Hyperparameters
         self.discount = 0.99
-        self.epsilon = 0
+        self.epsilon = 0.01
         self.eps_decay = 0.000005
         self.batch_size = 32
 
