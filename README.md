@@ -7,4 +7,5 @@ The network architecture consists of an image input, which after a series of con
 Training was done locally on a personal laptop with a mobile NVIDIA GTX 1060, over the course of a few days. The agent can clear laps on the map it was trained on, while somewhat clumsily generalizing to the other tracks in the game. 
 
 Agent Driving on the Track it was trained on:
+
 ![Alt Text](https://github.com/azhou314/SNES-DeepRL-Project/blob/master/F-Zero/example.gif)
