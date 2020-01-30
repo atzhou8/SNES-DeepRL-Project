@@ -68,13 +68,15 @@ while True:
     conn.sendall("0\n".encode('ascii'))
     game_over = int(conn.recv(1024))
     conn.sendall("0\n".encode('ascii'))
+    speed = int(conn.recv(1024))
+    conn.sendall("0\n".encode('ascii'))
 
     # Receive next image
     images = images[1:4]
     r = conn.recv(1024)
     images.append(util.get_image())
 
-    action, reward = agent.observe(np.array([np.transpose(np.array(images))]), checkpoint, power, reversed, game_over, last_act)
+    action, reward = agent.observe(np.array([np.transpose(np.array(images))]), checkpoint, power, reversed, game_over, last_act, speed)
     last_act = np.array([[int(i==action) for i in range(3)]])
     action = agent.action_input_dict[action] + "\n"
     curr_reward += agent.discount * reward
@@ -89,14 +91,14 @@ while True:
             agent.optimize(1)
             agent.epsilon -= agent.eps_decay
             if agent.epsilon <= 0.05:
-                agent.epsilon = 0.6
-            if agent.epsilon < 0.2:
+                agent.epsilon = 0.5
+            if agent.epsilon < 0.1:
                 agent.epsilon = 0.05
         if frame_count % 2500 == 0:
             agent.update_target()
 
     # book-keeping at end of episode
-    if power < 1900 or game_over == 128 or reversed == 1:
+    if power < 1500 or game_over == 128 or reversed == 1:
         ep = ep + 1
         print("Episode: ", ep)
         print("Epsilon: ", agent.epsilon)

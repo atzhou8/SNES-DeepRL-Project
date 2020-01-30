@@ -43,10 +43,14 @@ class Network:
             self.conv4 = tf.layers.conv2d(
                 inputs=self.conv3, filters=256, kernel_size=[3, 3], strides=1,
                 kernel_initializer=tf.variance_scaling_initializer(scale=2),
-                padding="valid", activation=tf.nn.relu, use_bias=False, name='conv4')
+                padding="same", activation=tf.nn.relu, use_bias=False, name='conv4')
+            self.conv5 = tf.layers.conv2d(
+                inputs=self.conv4, filters=256, kernel_size=[3, 3], strides=1,
+                kernel_initializer=tf.variance_scaling_initializer(scale=2),
+                padding="valid", activation=tf.nn.relu, use_bias=False, name='conv5')
 
             # Dueling Architecture
-            self.flattened = tf.concat([tf.contrib.layers.flatten(self.conv4), self.last_act], 1)
+            self.flattened = tf.concat([tf.contrib.layers.flatten(self.conv5), self.last_act], 1)
             self.value_out = tf.layers.dense(inputs=self.flattened, units=1,
                                              kernel_initializer=tf.variance_scaling_initializer(scale=2))
             self.advantage_fc1 = tf.layers.dense(inputs=self.flattened, units=1024, activation=tf.nn.relu,
@@ -84,7 +88,7 @@ class Agent:
         # Hyperparameters
         self.discount = 0.99
         self.epsilon = 0.01
-        self.eps_decay = 0.00005
+        self.eps_decay = 0.000005
         self.batch_size = 32
 
         # Bookkeeping
@@ -120,23 +124,25 @@ class Agent:
             # self.update_target()
             print("Initialized new model")
 
-    def calculate_reward(self, state, game_over):
+    def calculate_reward(self, state, game_over, speed):
         power = state.power
         checkpoint = state.checkpoint
         reversed = state.reversed
 
         if reversed == 1 or power < self.curr_power or checkpoint < self.last_checkpoint or game_over == 128:
             return -1
-        elif checkpoint > self.last_checkpoint:
+        elif speed > 1200:
             return 1
+        elif speed > 0:
+            return 0.5
         else:
-            return 1
+            return 0
 
-    def observe(self, image, checkpoint, power, reversed, game_over, last_act):
+    def observe(self, image, checkpoint, power, reversed, game_over, last_act, speed):
         state = State(image, checkpoint, power, reversed, last_act)
 
         # Calculate reward
-        reward = self.calculate_reward(state, game_over)
+        reward = self.calculate_reward(state, game_over, speed)
         self.last_checkpoint = checkpoint
         self.curr_power = power
 
@@ -146,7 +152,7 @@ class Agent:
         action = desired_action if p == 0 else np.random.randint(0, 3)
 
         # Add experience to replay_buffer
-        is_terminal = True if power < 1900 or game_over == 128 or reversed == 1 else False
+        is_terminal = True if power < 1500 or game_over == 128 or reversed == 1 else False
         self.add_to_buffer(state, action, reward, is_terminal)
 
         print("Desired Action: ", self.action_dict[desired_action],
@@ -157,7 +163,8 @@ class Agent:
               "| Reward: ", reward,
               "| Reversed: ", reversed,
               "| Game Over: ", game_over,
-              "| Terminal: ", is_terminal)
+              "| Terminal: ", is_terminal,
+              "| Speed: ", speed)
 
         return action, reward
 
