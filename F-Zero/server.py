@@ -1,16 +1,13 @@
 import util
 import socket
 import pickle
-import tensorflow as tf
 import numpy as np
+import torch
 from PIL import ImageGrab, Image
 
 import deep_q_agent
 
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-session = tf.Session(config=config)
-agent = deep_q_agent.Agent(session)
+agent = deep_q_agent.Agent()
 HOST = 'localhost'
 PORT = 8080
 
@@ -47,6 +44,11 @@ save_slots[7] = ([img7 for _ in range(4)], 26)
 save_slots[8] = ([img8 for _ in range(4)], 28)
 save_slots[9] = ([img9 for _ in range(4)], 37)
 
+# test5 = torch.FloatTensor([save_slots[5][0]])
+# test5 = torch.cat((test5, test5))
+# test5 = torch.cat((test5, test5)).to(torch.device("cuda"))
+#
+# last_act = torch.FloatTensor([[0, 1, 0], [1, 0, 0], [0, 0, 1], [1, 0, 0]]).to(torch.device("cuda"))
 max_reward = 0
 curr_reward = 0
 eps_since_max = 0
@@ -76,13 +78,13 @@ while True:
     r = conn.recv(1024)
     images.append(util.get_image())
 
-    action, reward = agent.observe(np.array([np.transpose(np.array(images))]), checkpoint, power, reversed, game_over, last_act, speed)
+    action, reward = agent.observe(np.array([images]), checkpoint, power, reversed, game_over, last_act, speed)
     last_act = np.array([[int(i==action) for i in range(3)]])
     action = agent.action_input_dict[action] + "\n"
     curr_reward += agent.discount * reward
 
-    # if frame_count > 1000:
-        # break
+    # if frame_count > 100:
+    #     break
 
     if frame_count >= 25000:
         if frame_count % 500 == 0:
@@ -100,8 +102,7 @@ while True:
     # book-keeping at end of episode
     if power < 1500 or game_over == 128 or reversed == 1:
         ep = ep + 1
-        print("Episode: ", ep)
-        print("Epsilon: ", agent.epsilon)
+        print("Episode: ", ep, " |Epsilon ", agent.epsilon)
         action = util.action_to_input(["A"]) + "\n"
         conn.sendall(action.encode('ascii'))
         slot_number = int(conn.recv(1024))
@@ -110,9 +111,9 @@ while True:
         else:
             max_reward = curr_reward
             eps_since_max = 0
-        print("Episode Terminated")
         print("Reward: ", curr_reward, " |Max Reward: ", max_reward, " |Eps Since Max:", eps_since_max)
-        print("Reloading to slot", slot_number)
+        print("----------------------------------------------------------------------------------------")
+        # print("Reloading to slot", slot_number)
         images, agent.last_checkpoint = save_slots[slot_number]
         last_act = np.array([[0,0,0]])
         curr_reward = 0
