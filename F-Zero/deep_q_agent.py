@@ -112,7 +112,7 @@ class Agent:
         checkpoint = state.checkpoint
         reversed = state.reversed
 
-        if reversed == 1 or power < self.curr_power or checkpoint < self.last_checkpoint or game_over == 128:
+        if reversed == 1 or power < self.curr_power or game_over == 128:
             return -1
         elif speed > 1200:
             return 1
@@ -139,15 +139,15 @@ class Agent:
         self.add_to_buffer(state, action, reward, is_terminal)
 
         # print("Desired Action: ", self.action_dict[desired_action],
-        #       "| Actual Action: ", self.action_dict[action],
-        #       "| Last Action: ", self.action_dict[np.argmax(last_act)],
-        #       "| Checkpoint: ", checkpoint,
-        #       "| Power: ", power,
-        #       "| Reward: ", reward,
-        #       "| Reversed: ", reversed,
-        #       "| Game Over: ", game_over,
-        #       "| Terminal: ", is_terminal,
-        #       "| Speed: ", speed)
+              # "| Actual Action: ", self.action_dict[action],
+              # "| Last Action: ", self.action_dict[np.argmax(last_act)],
+              # "| Checkpoint: ", checkpoint,
+              # "| Power: ", power,
+              # "| Reward: ", reward,
+              # "| Reversed: ", reversed,
+              # "| Game Over: ", game_over,
+              # "| Terminal: ", is_terminal,
+              # "| Speed: ", speed)
 
         return action, reward
 

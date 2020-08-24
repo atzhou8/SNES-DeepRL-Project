@@ -38,17 +38,15 @@ save_slots[1] = ([img1 for _ in range(4)], 4)
 save_slots[2] = ([img2 for _ in range(4)], 8)
 save_slots[3] = ([img3 for _ in range(4)], 11)
 save_slots[4] = ([img4 for _ in range(4)], 16)
-save_slots[5] = ([start_image for _ in range(4)], -198)
+save_slots[5] = ([start_image for _ in range(4)], -198) # beginning of first track
 save_slots[6] = ([img6 for _ in range(4)], 22)
 save_slots[7] = ([img7 for _ in range(4)], 26)
 save_slots[8] = ([img8 for _ in range(4)], 28)
 save_slots[9] = ([img9 for _ in range(4)], 37)
 
-# test5 = torch.FloatTensor([save_slots[5][0]])
-# test5 = torch.cat((test5, test5))
-# test5 = torch.cat((test5, test5)).to(torch.device("cuda"))
-#
-# last_act = torch.FloatTensor([[0, 1, 0], [1, 0, 0], [0, 0, 1], [1, 0, 0]]).to(torch.device("cuda"))
+# second element of the save_slots were originally checkpoints for reward calculation, but not currently used
+# checkpoint values are currently meaningless
+
 max_reward = 0
 curr_reward = 0
 eps_since_max = 0
@@ -83,8 +81,8 @@ while True:
     action = agent.action_input_dict[action] + "\n"
     curr_reward += agent.discount * reward
 
-    # if frame_count > 100:
-    #     break
+    # if frame_count > 2000:
+        # break
 
     if frame_count >= 25000:
         if frame_count % 500 == 0:
