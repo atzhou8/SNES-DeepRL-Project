@@ -7,7 +7,9 @@ Buttons = {
 	"Down",
 	"Left",
 	"Right",
-	"Start"
+	"Start",
+	"L",
+	"R"
 }
 
 -- emu.limitframerate(true)

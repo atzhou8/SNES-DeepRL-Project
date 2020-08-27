@@ -33,7 +33,7 @@ def clean_image(img):
     return img
 
 def action_to_input(input):
-    buttons = ["A", "B", "X", "Y", "Up", "Down", "Left", "Right", "Start"]
+    buttons = ["A", "B", "X", "Y", "Up", "Down", "Left", "Right", "Start", "L", "R"]
     action = ""
     for i in range(len(buttons)):
         if buttons[i] in input:

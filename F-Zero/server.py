@@ -53,7 +53,7 @@ eps_since_max = 0
 ep = 0
 images = []
 images, agent.curr_checkpoint = save_slots[5]
-last_act=np.array([[0,0,0]])
+last_act=np.array([[0,0,0,0,0]])
 while True:
     frame_count = (frame_count + 1) % 1000000
 
@@ -77,12 +77,12 @@ while True:
     images.append(util.get_image())
 
     action, reward = agent.observe(np.array([images]), checkpoint, power, reversed, game_over, last_act, speed)
-    last_act = np.array([[int(i==action) for i in range(3)]])
+    last_act = np.array([[int(i==action) for i in range(5)]])
     action = agent.action_input_dict[action] + "\n"
     curr_reward += agent.discount * reward
 
-    # if frame_count > 2000:
-        # break
+    # if frame_count > 100:
+    #     break
 
     if frame_count >= 25000:
         if frame_count % 500 == 0:
@@ -90,10 +90,8 @@ while True:
         if frame_count % 4 == 0:
             agent.optimize(1)
             agent.epsilon -= agent.eps_decay
-            if agent.epsilon <= 0.05:
-                agent.epsilon = 0.5
-            if agent.epsilon < 0.1:
-                agent.epsilon = 0.05
+            if agent.epsilon <= 0.3:
+                agent.epsilon = 0.6
         if frame_count % 2500 == 0:
             agent.update_target()
 
@@ -113,7 +111,7 @@ while True:
         print("----------------------------------------------------------------------------------------")
         # print("Reloading to slot", slot_number)
         images, agent.last_checkpoint = save_slots[slot_number]
-        last_act = np.array([[0,0,0]])
+        last_act = np.array([[0,0,0,0,0]])
         curr_reward = 0
         continue
 

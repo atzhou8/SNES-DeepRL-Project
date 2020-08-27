@@ -34,12 +34,12 @@ class DQN(nn.Module):
         self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, padding=1)
         self.conv5 = nn.Conv2d(in_channels=256, out_channels=256, kernel_size=3)
 
-        self.value_fc1 = nn.Linear(in_features=256*5 + 3, out_features=1024)
+        self.value_fc1 = nn.Linear(in_features=256*5 + 5, out_features=1024)
         self.value_out = nn.Linear(in_features=1024, out_features=1)
 
-        self.advantage_fc1 = nn.Linear(in_features=256*5 + 3, out_features=1024)
+        self.advantage_fc1 = nn.Linear(in_features=256*5 + 5, out_features=1024)
         self.advantage_fc2 = nn.Linear(in_features=1024, out_features=1024)
-        self.advantage_out = nn.Linear(in_features=1024, out_features=3)
+        self.advantage_out = nn.Linear(in_features=1024, out_features=5)
 
     def forward(self, x, last_act):
         # Convolution forward
@@ -80,46 +80,56 @@ class Agent:
         self.curr_power = 2048
 
         # Saving paths
-        self.exp_path = "data/replaydata.pkl"
+        self.optimizer_path = "model/optimizer.pth"
         self.model_path = "model/model.pth"
 
         # Additional data
         self.action_input_dict = {0: util.action_to_input(["Left", "B"]),
                                   1: util.action_to_input(["B"]),
-                                  2: util.action_to_input(["Right", "B"])}
+                                  2: util.action_to_input(["Right", "B"]),
+                                  3: util.action_to_input(["Left", "B", "L"]),
+                                  4: util.action_to_input(["Right", "B", "R"])}
         self.action_dict = {0: "Left",
                             1: "Forward",
-                            2: "Right"}
+                            2: "Right",
+                            3: "Drift Left",
+                            4: "Drift Right"}
 
         # Initialize networks
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.training_network = DQN().to(self.device)
         self.target_network = DQN().to(self.device)
 
+        # Define cost and optimizer
+        self.criterion = nn.SmoothL1Loss()
+        self.optimizer = torch.optim.Adam(self.training_network.parameters(), lr=self.alpha)
+
+        # Load model/optimizer parameters if available
         try:
             self.training_network.load_state_dict(torch.load(self.model_path))
             self.target_network.load_state_dict(torch.load(self.model_path))
+            self.optimizer.load_state_dict(torch.load(self.optimizer_path))
             print("Model restored")
         except:
             print("New Training Session")
 
-        # Define cost and optimizer
-        self.criterion = nn.SmoothL1Loss()
-        self.optimizer = torch.optim.Adam(self.training_network.parameters(), lr=self.alpha)
+
 
     def calculate_reward(self, state, game_over, speed):
         power = state.power
         checkpoint = state.checkpoint
         reversed = state.reversed
 
+        power_comp = 0.25 if power > self.curr_power else 0 #slightly recharging
+
         if reversed == 1 or power < self.curr_power or game_over == 128:
             return -1
         elif speed > 1200:
-            return 1
+            return 1 + power_comp
         elif speed > 0:
-            return 0.5
+            return 0.15 + power_comp
         else:
-            return 0
+            return 0 + power_comp
 
     def observe(self, image, checkpoint, power, reversed, game_over, last_act, speed):
         state = State(torch.FloatTensor(image), checkpoint, power, reversed, torch.FloatTensor(last_act))
@@ -132,7 +142,7 @@ class Agent:
         # Compute action based on epsilon-greedy policy
         p = np.random.binomial(1, self.epsilon)
         desired_action = int(torch.argmax(self.get_training_action(state)))
-        action = desired_action if p == 0 else np.random.randint(0, 3)
+        action = desired_action if p == 0 else np.random.randint(0, 5)
 
         # Add experience to replay_buffer
         is_terminal = True if power < 1500 or game_over == 128 or reversed == 1 else False
@@ -140,7 +150,7 @@ class Agent:
 
         # print("Desired Action: ", self.action_dict[desired_action],
               # "| Actual Action: ", self.action_dict[action],
-              # "| Last Action: ", self.action_dict[np.argmax(last_act)],
+              # "| Last Action: ", self.action_dict[np.argmax(last_act)])
               # "| Checkpoint: ", checkpoint,
               # "| Power: ", power,
               # "| Reward: ", reward,
@@ -181,6 +191,7 @@ class Agent:
 
     def save_model(self):
         torch.save(self.training_network.state_dict(), self.model_path)
+        torch.save(self.optimizer.state_dict(), self.optimizer_path)
         shutil.rmtree('/backup', ignore_errors=True)
         copy_tree("model", "backup")
 
@@ -205,9 +216,6 @@ class Agent:
             state0, action0, reward0, terminal0 = self.replay_buffer[b]
             q0 = self.get_training_action(state0).cpu().numpy()
             if terminal0 or b == len(self.replay_buffer) - 1: #Terminal State
-                # q0[0, 0] = reward0
-                # q0[0, 1] = reward0
-                # q0[0, 2] = reward0
                 q0[0, action0] = reward0
             else:
                 state1, action1, reward1, terminal1 = self.replay_buffer[b+1]
