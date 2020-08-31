@@ -68,7 +68,7 @@ while true do
 	tcp:send(1)
 	-- print("All data sent")
 
-	for i = 1, 6 do
+	for i = 1, 4 do
 		joypad.set(input, 1)
 		emu.frameadvance()
 	end

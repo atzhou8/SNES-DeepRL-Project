@@ -22,11 +22,11 @@ def clean_image(img):
     img = img.crop((0, 48, 256, 224))
 
     #remove extraneous
-    boost_box = [(208, 160), (232, 168)]
+    # boost_box = [(208, 160), (232, 168)]
     # timer_box = [(184, 2), (240, 14)]
     # car_box = [(104, 110), (152, 144)]
     drawer = ImageDraw.Draw(img)
-    drawer.rectangle(boost_box, fill=166,outline=166)
+    # drawer.rectangle(boost_box, fill=166,outline=166)
     # drawer.rectangle(timer_box, fill=166,outline=166)
     # drawer.rectangle(car_box, fill=166,outline=166)
 
