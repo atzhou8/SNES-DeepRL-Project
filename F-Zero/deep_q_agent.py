@@ -28,7 +28,7 @@ class State:
 class DQN(nn.Module):
     def __init__(self):
         super(DQN, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels=8, out_channels=64, kernel_size=8, stride=4)
+        self.conv1 = nn.Conv2d(in_channels=4, out_channels=64, kernel_size=8, stride=4)
         self.conv2 = nn.Conv2d(in_channels=64, out_channels=64, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3)
         self.conv4 = nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, padding=1)
@@ -68,7 +68,7 @@ class Agent:
     def __init__(self):
         # Hyperparameters
         self.discount = 0.99
-        self.epsilon = 0.00
+        self.epsilon = 0.01
         self.alpha = 0.00001
         self.eps_decay = 0.000005
         self.batch_size = 32
@@ -127,7 +127,7 @@ class Agent:
         elif speed > 1200:
             return 1
         elif speed > 0:
-            return 0.15
+            return 0
         else:
             return 0
 
@@ -145,7 +145,7 @@ class Agent:
         action = desired_action if p == 0 else np.random.randint(0, 5)
 
         # Add experience to replay_buffer
-        is_terminal = True if power < 1500 or game_over == 128 or reversed == 1 or checkpoint >= 1280 else False
+        is_terminal = True if power < 0 or game_over == 128 or reversed == 1 or checkpoint >= 1280 else False
         self.add_to_buffer(state, action, reward, is_terminal)
 
         # print("Desired Action: ", self.action_dict[desired_action],

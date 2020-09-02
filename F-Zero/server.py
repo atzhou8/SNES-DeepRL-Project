@@ -19,7 +19,7 @@ print('Connected by', addr)
 frame_count = 0
 
 start_image = util.process_image(Image.open("images/start_image.png"))
-start = ([start_image for _ in range(8)], 0) # feed a list of blank images of a dummy checkpoint to start with
+start = ([start_image for _ in range(4)], 0) # feed a list of blank images of a dummy checkpoint to start with
 
 max_reward = 0
 curr_reward = 0
@@ -46,7 +46,7 @@ while True:
     conn.sendall("0\n".encode('ascii'))
 
     # Receive next image
-    images = images[1:8]
+    images = images[1:4]
     r = conn.recv(1024)
     images.append(util.get_image())
 
@@ -65,12 +65,12 @@ while True:
             agent.optimize(1)
             agent.epsilon -= agent.eps_decay
             if agent.epsilon <= 0.15:
-                agent.epsilon = 0.3
+                agent.epsilon = 0.5
         if frame_count % 2500 == 0:
             agent.update_target()
 
     # book-keeping at end of episode
-    if power < 1500 or game_over == 128 or reversed == 1 or checkpoint >= 1280:
+    if power < 0 or game_over == 128 or reversed == 1 or checkpoint >= 1280:
         ep = ep + 1
         print("Episode: ", ep, " |Epsilon ", agent.epsilon)
         action = util.action_to_input(["A"]) + "\n"
