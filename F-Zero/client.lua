@@ -47,7 +47,7 @@ local max_saved = 1
 local all_saved = true
 local restart_count = 0
 
--- savestate.loadslot(5)
+savestate.loadslot(5)
 while true do
 	-- if frame == 0 then
 	--send data

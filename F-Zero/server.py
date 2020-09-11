@@ -64,13 +64,13 @@ while True:
         if frame_count % 4 == 0:
             agent.optimize(1)
             agent.epsilon -= agent.eps_decay
-            if agent.epsilon <= 0.15:
-                agent.epsilon = 0.5
+            if agent.epsilon <= 0.075:
+                agent.epsilon = 0.7
         if frame_count % 2500 == 0:
             agent.update_target()
 
     # book-keeping at end of episode
-    if power < 0 or game_over == 128 or reversed == 1 or checkpoint >= 1280:
+    if power < 1500 or game_over == 128 or reversed == 1 or checkpoint >= 1280:
         ep = ep + 1
         print("Episode: ", ep, " |Epsilon ", agent.epsilon)
         action = util.action_to_input(["A"]) + "\n"

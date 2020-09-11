@@ -68,7 +68,7 @@ class Agent:
     def __init__(self):
         # Hyperparameters
         self.discount = 0.99
-        self.epsilon = 0.01
+        self.epsilon = 0.05
         self.alpha = 0.00001
         self.eps_decay = 0.000005
         self.batch_size = 32
@@ -145,7 +145,7 @@ class Agent:
         action = desired_action if p == 0 else np.random.randint(0, 5)
 
         # Add experience to replay_buffer
-        is_terminal = True if power < 0 or game_over == 128 or reversed == 1 or checkpoint >= 1280 else False
+        is_terminal = True if power < 1500 or game_over == 128 or reversed == 1 or checkpoint >= 1280 else False
         self.add_to_buffer(state, action, reward, is_terminal)
 
         # print("Desired Action: ", self.action_dict[desired_action],
