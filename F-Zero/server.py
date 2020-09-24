@@ -70,7 +70,7 @@ while True:
             agent.update_target()
 
     # book-keeping at end of episode
-    if power < 1500 or game_over == 128 or reversed == 1 or checkpoint >= 1280:
+    if power < 0 or game_over == 128 or reversed == 1 or checkpoint >= 1280:
         ep = ep + 1
         print("Episode: ", ep, " |Epsilon ", agent.epsilon)
         action = util.action_to_input(["A"]) + "\n"
