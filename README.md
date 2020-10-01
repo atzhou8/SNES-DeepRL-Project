@@ -2,6 +2,8 @@
 
 For this project, I used Pytorch to develop a reinforcement learning agent to play the SNES game F-Zero using a double deep Q network with dueling architecture. The game was run on BizHawk, an emulator with Lua scripting capabilities. I then interfaced this with Python using socket programming. 
 
+![Alt Text](https://github.com/azhou314/SNES-DeepRL-Project/blob/master/F-Zero/gifs/example1.gif)
+![Alt Text](https://github.com/azhou314/SNES-DeepRL-Project/blob/master/F-Zero/gifs/example2.gif)
 ![Alt Text](https://github.com/azhou314/SNES-DeepRL-Project/blob/master/F-Zero/gifs/example3.gif)
 
 ## Problem Formulation
