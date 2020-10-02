@@ -55,8 +55,8 @@ while True:
     action = agent.action_input_dict[action] + "\n"
     curr_reward += agent.discount * reward
 
-    # if frame_count > 500:
-        # break
+    if frame_count > 10:
+        break
 
     if frame_count >= 25000:
         if frame_count % 500 == 0:

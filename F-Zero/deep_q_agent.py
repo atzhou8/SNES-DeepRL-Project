@@ -21,7 +21,7 @@ class State:
 
     def view_image(self):
         img = self.image[0]
-        img = np.hstack((img[0], img[1], img[2], img[3], img[4], img[5], img[6], img[7]))
+        img = np.hstack((img[0], img[1], img[2], img[3]))
         Image.fromarray(img).show()
 
 
